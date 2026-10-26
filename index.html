@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nobaarr — Nonton Bareng, Temukan Film</title>
+<meta name="description" content="Nobaarr: jelajahi film berdasarkan genre, filter, dan tonton trailernya langsung.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23ff5a36'/><path d='M38 28l36 22-36 22z' fill='white'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+<style>
+:root{
+  --bg:#fbf7f2; --bg-2:#f3ece3; --card:#ffffff; --ink:#1d1a17; --ink-2:#4b443d; --muted:#8a8077;
+  --line:#eadfd2; --accent:#ff5a36; --accent-d:#e8431f; --accent-soft:#ffe9e2; --gold:#f5a524; --ok:#2f9e6b;
+  --shadow:0 1px 2px rgba(60,40,20,.06), 0 8px 24px rgba(60,40,20,.08);
+  --shadow-lg:0 20px 60px rgba(60,40,20,.18);
+  --r:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+[x-cloak]{display:none!important}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+input,select{font:inherit;color:inherit}
+img{display:block;max-width:100%}
+h1,h2,h3{font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.02em;line-height:1.1}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+
+/* decorative background */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(900px 500px at 85% -10%,#ffe3d6 0,transparent 60%),radial-gradient(700px 400px at -10% 20%,#fff1cf 0,transparent 60%)}
+
+/* ===== Header ===== */
+header.top{position:sticky;top:0;z-index:50;backdrop-filter:saturate(1.4) blur(14px);background:rgba(251,247,242,.82);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:20px;height:72px}
+.logo{display:flex;align-items:center;gap:10px;font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;letter-spacing:-.04em}
+.logo i{width:36px;height:36px;border-radius:11px;background:var(--accent);display:grid;place-items:center;box-shadow:0 6px 16px rgba(255,90,54,.4);transform:rotate(-6deg)}
+.logo i svg{width:16px;height:16px;fill:#fff;margin-left:2px}
+.logo b{color:var(--accent)}
+nav.tabs{display:flex;gap:4px;margin-left:12px;overflow-x:auto;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px;color:var(--ink-2);white-space:nowrap;transition:.2s}
+nav.tabs button:hover{background:var(--bg-2)}
+nav.tabs button.on{background:var(--ink);color:#fff}
+.top .spacer{flex:1}
+.search{position:relative;width:min(300px,34vw)}
+.search input{width:100%;padding:11px 16px 11px 42px;border-radius:999px;border:1.5px solid var(--line);background:#fff;outline:0;transition:.2s}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+.search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;stroke:var(--muted);fill:none;stroke-width:2}
+.icon-btn{position:relative;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:#fff;display:grid;place-items:center;transition:.2s;flex:none}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent)}
+.icon-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2}
+.icon-btn .dot{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;border-radius:10px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 5px}
+
+/* ===== Hero ===== */
+.hero{margin:28px 0 8px;position:relative;border-radius:32px;overflow:hidden;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);min-height:480px;display:grid}
+.hero-slide{grid-area:1/1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);opacity:0;pointer-events:none;transition:opacity .7s}
+.hero-slide.on{opacity:1;pointer-events:auto}
+.hero-copy{padding:56px 48px;display:flex;flex-direction:column;justify-content:center;gap:18px;position:relative;z-index:2}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent-d);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;width:fit-content}
+.hero h1{font-size:clamp(34px,5vw,60px);font-weight:800}
+.hero p.ov{color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;max-width:52ch}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:10px;color:var(--ink-2);font-size:14px;font-weight:600}
+.meta .sep{width:4px;height:4px;border-radius:50%;background:var(--muted)}
+.star{color:var(--gold)}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:999px;font-weight:700;transition:.2s}
+.btn svg{width:18px;height:18px}
+.btn.pri{background:var(--accent);color:#fff;box-shadow:0 10px 24px rgba(255,90,54,.35)}
+.btn.pri:hover{background:var(--accent-d);transform:translateY(-2px)}
+.btn.pri svg{fill:#fff}
+.btn.sec{background:#fff;border:1.5px solid var(--line)}
+.btn.sec:hover{border-color:var(--ink)}
+.btn.sec svg{stroke:currentColor;fill:none;stroke-width:2}
+.hero-art{position:relative;min-height:320px}
+.hero-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero-art::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,#fff 0,rgba(255,255,255,.55) 22%,transparent 55%)}
+.dots{position:absolute;left:48px;bottom:24px;display:flex;gap:8px;z-index:3}
+.dots button{width:10px;height:10px;border-radius:99px;background:var(--line);transition:.3s}
+.dots button.on{width:32px;background:var(--accent)}
+.hero-skel{min-height:480px;background:linear-gradient(100deg,#fff 30%,var(--bg-2) 50%,#fff 70%);background-size:200% 100%;animation:sh 1.4s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* ===== Filter bar ===== */
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:44px 0 18px;flex-wrap:wrap}
+.section-head h2{font-size:clamp(26px,3.4vw,38px);font-weight:800}
+.section-head small{color:var(--muted);font-weight:500;font-size:14px;display:block;margin-top:6px;font-family:'Plus Jakarta Sans';letter-spacing:0}
+.genres{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 14px;scrollbar-width:thin}
+.chip{flex:none;padding:10px 18px;border-radius:999px;background:#fff;border:1.5px solid var(--line);font-weight:600;font-size:14px;transition:.2s;display:inline-flex;gap:8px;align-items:center}
+.chip:hover{border-color:var(--accent);transform:translateY(-1px)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 8px 18px rgba(255,90,54,.3)}
+.filters{display:flex;flex-wrap:wrap;gap:14px;align-items:end;padding:18px 20px;background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.field{display:flex;flex-direction:column;gap:6px;min-width:150px}
+.field label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.field select,.field input[type=number]{padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);outline:0;transition:.2s}
+.field select:focus,.field input:focus{border-color:var(--accent)}
+.field.range{min-width:210px}
+.field.range .val{color:var(--ink);font-weight:800;margin-left:6px}
+input[type=range]{accent-color:var(--accent);width:100%}
+.reset{margin-left:auto;padding:10px 16px;border-radius:12px;font-weight:700;color:var(--accent-d);background:var(--accent-soft);transition:.2s}
+.reset:hover{background:#ffd9ce}
+.active-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.tag{padding:5px 12px;border-radius:999px;background:var(--bg-2);font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.tag button{opacity:.55}
+.tag button:hover{opacity:1}
+
+/* ===== Grid ===== */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:24px;margin-top:22px}
+.card{position:relative;background:var(--card);border-radius:var(--r);border:1px solid var(--line);overflow:hidden;box-shadow:var(--shadow);transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s;cursor:pointer;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-8px);box-shadow:var(--shadow-lg)}
+.poster{position:relative;aspect-ratio:2/3;background:var(--bg-2);overflow:hidden}
+.poster img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.card:hover .poster img{transform:scale(1.06)}
+.poster .noimg{height:100%;display:grid;place-items:center;color:var(--muted);font-weight:600;padding:16px;text-align:center}
+.rate{position:absolute;left:10px;top:10px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.94);font-weight:800;font-size:13px;display:flex;gap:4px;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.fav{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.12);transition:.2s}
+.fav:hover{transform:scale(1.12)}
+.fav svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2}
+.fav.on svg{fill:var(--accent);stroke:var(--accent)}
+.play-ov{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(0deg,rgba(29,26,23,.55),transparent 55%);opacity:0;transition:.3s}
+.card:hover .play-ov{opacity:1}
+.play-ov span{display:inline-flex;gap:8px;align-items:center;padding:10px 16px;border-radius:999px;background:var(--accent);color:#fff;font-weight:700;font-size:13px;transform:translateY(12px);transition:.3s;position:absolute;bottom:14px}
+.card:hover .play-ov span{transform:none}
+.play-ov svg{width:12px;height:12px;fill:#fff}
+.info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:4px}
+.info h3{font-size:16px;font-weight:700;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.info small{color:var(--muted);font-weight:500}
+.skel{aspect-ratio:2/3.55;border-radius:var(--r);background:linear-gradient(100deg,#fff 30%,var(--bg-2) 50%,#fff 70%);background-size:200% 100%;animation:sh 1.4s infinite;border:1px solid var(--line)}
+.empty{grid-column:1/-1;text-align:center;padding:70px 20px;color:var(--ink-2)}
+.empty h3{font-size:28px;margin:10px 0}
+.more{display:flex;justify-content:center;margin:40px 0 20px}
+.more .btn{background:var(--ink);color:#fff}
+.more .btn:hover{background:var(--accent)}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+footer{margin-top:60px;padding:36px 0;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+footer a{color:var(--accent-d);font-weight:600}
+
+/* ===== Modal ===== */
+.overlay{position:fixed;inset:0;z-index:100;background:rgba(29,26,23,.55);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:4vh 16px}
+.modal{width:min(980px,100%);background:var(--bg);border-radius:28px;overflow:hidden;box-shadow:var(--shadow-lg);position:relative;margin:auto}
+.close{position:absolute;right:16px;top:16px;z-index:10;width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.2);display:grid;place-items:center;transition:.2s}
+.close:hover{background:var(--accent);color:#fff;transform:rotate(90deg)}
+.close svg{width:18px;height:18px;stroke:currentColor;stroke-width:2.5;fill:none}
+.stage{position:relative;aspect-ratio:16/9;background:#14110f}
+.stage iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.stage .cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
+.stage .cover-fade{position:absolute;inset:0;background:linear-gradient(0deg,rgba(20,17,15,.75),rgba(20,17,15,.1) 60%)}
+.big-play{position:absolute;inset:0;margin:auto;width:92px;height:92px;border-radius:50%;background:var(--accent);display:grid;place-items:center;box-shadow:0 0 0 12px rgba(255,90,54,.25),0 20px 40px rgba(0,0,0,.4);transition:.25s;animation:pulse 2s infinite}
+.big-play:hover{transform:scale(1.1)}
+.big-play svg{width:32px;height:32px;fill:#fff;margin-left:5px}
+@keyframes pulse{50%{box-shadow:0 0 0 22px rgba(255,90,54,0),0 20px 40px rgba(0,0,0,.4)}}
+.no-trailer{position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-align:center;padding:20px;font-weight:600}
+.vids{display:flex;gap:8px;flex-wrap:wrap;padding:14px 28px 0}
+.vids button{padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-size:13px;font-weight:600;transition:.2s}
+.vids button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.vids button:hover:not(.on){border-color:var(--accent)}
+.m-body{padding:24px 28px 32px;display:grid;grid-template-columns:200px 1fr;gap:28px}
+.m-poster{border-radius:18px;overflow:hidden;box-shadow:var(--shadow);aspect-ratio:2/3;background:var(--bg-2);margin-top:-90px;position:relative;z-index:2;border:4px solid var(--bg)}
+.m-poster img{width:100%;height:100%;object-fit:cover}
+.m-main{display:flex;flex-direction:column;gap:16px;min-width:0}
+.m-main h2{font-size:clamp(28px,4vw,42px);font-weight:800}
+.tagline{color:var(--accent-d);font-weight:600;font-style:italic}
+.gtags{display:flex;gap:8px;flex-wrap:wrap}
+.gtags span{padding:5px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent-d);font-weight:700;font-size:13px}
+.m-main p{color:var(--ink-2)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.fact{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.fact small{display:block;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em}
+.fact b{font-weight:700}
+.m-main h4{font-family:'Bricolage Grotesque';font-size:20px;margin-top:6px}
+.cast{display:flex;gap:14px;overflow-x:auto;padding-bottom:8px}
+.person{flex:none;width:92px;text-align:center;font-size:12.5px}
+.person .av{width:76px;height:76px;border-radius:50%;overflow:hidden;margin:0 auto 6px;background:var(--bg-2);border:2px solid #fff;box-shadow:var(--shadow)}
+.person .av img{width:100%;height:100%;object-fit:cover}
+.person b{display:block;line-height:1.25}
+.person span{color:var(--muted)}
+.similar{display:flex;gap:14px;overflow-x:auto;padding-bottom:10px}
+.sim{flex:none;width:118px;cursor:pointer;transition:.2s}
+.sim:hover{transform:translateY(-4px)}
+.sim img,.sim .ph{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:12px;background:var(--bg-2);box-shadow:var(--shadow)}
+.sim small{display:block;margin-top:6px;font-weight:600;font-size:12.5px;line-height:1.3}
+.m-loading{padding:80px;display:grid;place-items:center}
+.m-loading .spin{border-color:var(--line);border-top-color:var(--accent);width:40px;height:40px}
+
+/* ===== Drawer (watchlist) ===== */
+.drawer-ov{position:fixed;inset:0;z-index:90;background:rgba(29,26,23,.4);backdrop-filter:blur(4px)}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(420px,100%);background:var(--bg);z-index:95;box-shadow:var(--shadow-lg);display:flex;flex-direction:column}
+.drawer header{padding:22px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}
+.drawer header h3{font-size:24px}
+.drawer .list{flex:1;overflow-y:auto;padding:16px 24px;display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px;align-items:center;cursor:pointer;transition:.2s}
+.row:hover{border-color:var(--accent)}
+.row img,.row .ph{width:56px;aspect-ratio:2/3;object-fit:cover;border-radius:10px;background:var(--bg-2)}
+.row div{flex:1;min-width:0}
+.row b{display:block;line-height:1.25}
+.row small{color:var(--muted)}
+.row .rm{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.row .rm:hover{background:var(--accent-soft);color:var(--accent-d)}
+
+/* ===== Settings / key ===== */
+.dialog{width:min(460px,100%);margin:auto;background:#fff;border-radius:24px;padding:28px;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:14px}
+.dialog h3{font-size:26px}
+.dialog p{color:var(--ink-2);font-size:14px}
+.dialog input{padding:13px 16px;border-radius:14px;border:1.5px solid var(--line);outline:0;background:var(--bg);width:100%}
+.dialog input:focus{border-color:var(--accent)}
+.dialog .row2{display:flex;gap:10px;justify-content:flex-end}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:200;background:var(--ink);color:#fff;padding:13px 22px;border-radius:999px;font-weight:600;box-shadow:var(--shadow-lg);font-size:14px;max-width:90vw}
+
+/* transitions */
+.fade-enter{transition:opacity .3s,transform .3s}
+.fade-start{opacity:0;transform:translateY(12px)}
+.fade-end{opacity:1;transform:none}
+
+@media (max-width:860px){
+  .hero-slide{grid-template-columns:1fr}
+  .hero-art{order:-1;min-height:220px}
+  .hero-art::before{background:linear-gradient(0deg,#fff 0,transparent 60%)}
+  .hero-copy{padding:24px 24px 64px}
+  .dots{left:24px}
+  .m-body{grid-template-columns:1fr}
+  .m-poster{display:none}
+  .top .wrap{gap:10px}
+  .search{width:auto;flex:1}
+  nav.tabs{display:none}
+  .mnav{display:flex!important}
+}
+.mnav{display:none;gap:6px;overflow-x:auto;padding:10px 24px;scrollbar-width:none}
+.mnav button{flex:none;padding:7px 14px;border-radius:999px;font-weight:600;font-size:13px;background:#fff;border:1.5px solid var(--line)}
+.mnav button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+@media (max-width:520px){
+  .grid{grid-template-columns:repeat(2,1fr);gap:14px}
+  .wrap{padding:0 16px}
+  .logo span.t{display:none}
+  .hero{border-radius:24px}
+  .filters{padding:14px}
+  .field{min-width:calc(50% - 7px);flex:1}
+  .field.range{min-width:100%}
+}
+</style>
+</head>
+
+<body x-data="nobaarr()" x-init="init()" @keydown.escape.window="closeAll()" x-effect="document.body.style.overflow = (modal.open || drawer || keyDialog) ? 'hidden' : ''">
+
+<!-- ===== HEADER ===== -->
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#" @click.prevent="goHome()">
+      <i><svg viewBox="0 0 24 24"><path d="M5 3l16 9-16 9z"/></svg></i>
+      <span class="t">Noba<b>arr</b></span>
+    </a>
+
+    <nav class="tabs">
+      <template x-for="t in tabs" :key="t.id">
+        <button :class="{on: tab===t.id && !query}" @click="setTab(t.id)" x-text="t.label"></button>
+      </template>
+    </nav>
+
+    <div class="spacer"></div>
+
+    <label class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" placeholder="Cari film…" x-model.debounce.500ms="query" @input.debounce.500ms="onSearch()" aria-label="Cari film">
+    </label>
+
+    <button class="icon-btn" @click="drawer=true" title="Watchlist" aria-label="Watchlist">
+      <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.8 4.5c2 0 3.7 1.1 5.2 3 1.5-1.9 3.2-3 5.2-3 3.800 0 5.900 3.900 4.400 7.300C19.500 16.400 12 21 12 21z"/></svg>
+      <span class="dot" x-show="favs.length" x-text="favs.length" x-cloak></span>
+    </button>
+    <button class="icon-btn" @click="keyDialog=true" title="Pengaturan API key" aria-label="Pengaturan">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.400 15a1.700 1.700 0 00.3 1.800l.1.100a2 2 0 11-2.800 2.800l-.1-.1a1.700 1.700 0 00-1.800-.3 1.700 1.700 0 00-1 1.500V21a2 2 0 01-4 0v-.1a1.700 1.700 0 00-1.100-1.500 1.700 1.700 0 00-1.800.3l-.1.1a2 2 0 11-2.800-2.800l.1-.1a1.700 1.700 0 00.3-1.800 1.700 1.700 0 00-1.500-1H3a2 2 0 010-4h.1a1.700 1.700 0 001.500-1.100 1.700 1.700 0 00-.3-1.800l-.1-.1a2 2 0 112.800-2.800l.1.100a1.700 1.700 0 001.800.3H9a1.700 1.700 0 001-1.500V3a2 2 0 014 0v.1a1.700 1.700 0 001 1.500 1.700 1.700 0 001.800-.3l.1-.1a2 2 0 112.800 2.800l-.1.100a1.700 1.700 0 00-.3 1.800V9a1.700 1.700 0 001.500 1H21a2 2 0 010 4h-.1a1.700 1.700 0 00-1.500 1z"/></svg>
+    </button>
+  </div>
+  <div class="mnav">
+    <template x-for="t in tabs" :key="t.id">
+      <button :class="{on: tab===t.id && !query}" @click="setTab(t.id)" x-text="t.label"></button>
+    </template>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" x-show="!query && !onlyFavs" x-cloak>
+    <template x-if="!hero.length"><div class="hero-skel" style="grid-area:1/1"></div></template>
+    <template x-for="(m,i) in hero" :key="m.id">
+      <article class="hero-slide" :class="{on: heroIdx===i}">
+        <div class="hero-copy">
+          <span class="badge">🔥 Lagi ramai minggu ini</span>
+          <h1 x-text="m.title"></h1>
+          <div class="meta">
+            <span><span class="star">★</span> <span x-text="fmtRate(m.vote_average)"></span></span>
+            <span class="sep"></span><span x-text="year(m.release_date)"></span>
+            <span class="sep"></span><span x-text="genreNames(m.genre_ids).slice(0,3).join(' · ')"></span>
+          </div>
+          <p class="ov" x-text="m.overview || 'Sinopsis belum tersedia dalam Bahasa Indonesia.'"></p>
+          <div class="actions">
+            <button class="btn pri" @click="openMovie(m.id, true)">
+              <svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg> Tonton Trailer
+            </button>
+            <button class="btn sec" @click="openMovie(m.id)">Detail Film</button>
+            <button class="btn sec" @click="toggleFav(m)" :aria-pressed="isFav(m.id)">
+              <svg viewBox="0 0 24 24" :style="isFav(m.id) ? 'fill:var(--accent);stroke:var(--accent)' : ''"><path d="M12 21s-7.500-4.600-9.600-9.200C.9 8.400 3 4.500 6.800 4.500c2 0 3.700 1.100 5.200 3 1.500-1.900 3.200-3 5.200-3 3.800 0 5.900 3.900 4.400 7.300C19.500 16.400 12 21 12 21z"/></svg>
+              <span x-text="isFav(m.id) ? 'Di Watchlist' : 'Watchlist'"></span>
+            </button>
+          </div>
+        </div>
+        <div class="hero-art">
+          <img :src="backdrop(m.backdrop_path, 'w1280')" :alt="'Backdrop ' + m.title" :loading="i===0 ? 'eager':'lazy'">
+        </div>
+      </article>
+    </template>
+    <div class="dots" x-show="hero.length">
+      <template x-for="(m,i) in hero" :key="'d'+m.id">
+        <button :class="{on: heroIdx===i}" @click="heroIdx=i; startHero()" :aria-label="'Slide ' + (i+1)"></button>
+      </template>
+    </div>
+  </section>
+
+  <!-- ===== FILTERS ===== -->
+  <section>
+    <div class="section-head">
+      <div>
+        <h2 x-text="heading"></h2>
+        <small x-text="subheading"></small>
+      </div>
+    </div>
+
+    <div class="genres" role="group" aria-label="Genre">
+      <button class="chip" :class="{on: !selGenres.length}" @click="clearGenres()">✨ Semua Genre</button>
+      <template x-for="g in genres" :key="g.id">
+        <button class="chip" :class="{on: selGenres.includes(g.id)}" @click="toggleGenre(g.id)">
+          <span x-text="genreEmoji(g.id)"></span><span x-text="g.name"></span>
+        </button>
+      </template>
+    </div>
+
+    <div class="filters">
+      <div class="field">
+        <label for="f-sort">Urutkan</label>
+        <select id="f-sort" x-model="sort" @change="applyFilters()">
+          <option value="popularity.desc">Terpopuler</option>
+          <option value="vote_average.desc">Rating tertinggi</option>
+          <option value="primary_release_date.desc">Rilis terbaru</option>
+          <option value="primary_release_date.asc">Rilis terlama</option>
+          <option value="revenue.desc">Pendapatan terbesar</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-year">Tahun rilis</label>
+        <select id="f-year" x-model="yearSel" @change="applyFilters()">
+          <option value="">Semua tahun</option>
+          <template x-for="y in years" :key="y"><option :value="y" x-text="y"></option></template>
+        </select>
+      </div>
+      <div class="field">
+        <label for="f-lang">Bahasa asli</label>
+        <select id="f-lang" x-model="origLang" @change="applyFilters()">
+          <option value="">Semua bahasa</option>
+          <option value="id">Indonesia</option>
+          <option value="en">Inggris</option>
+          <option value="ko">Korea</option>
+          <option value="ja">Jepang</option>
+          <option value="hi">Hindi</option>
+          <option value="th">Thailand</option>
+          <option value="fr">Prancis</option>
+          <option value="es">Spanyol</option>
+        </select>
+      </div>
+      <div class="field range">
+        <label for="f-rate">Rating minimal <span class="val" x-text="minRating > 0 ? '★ ' + minRating.toFixed(1) : 'Bebas'"></span></label>
+        <input id="f-rate" type="range" min="0" max="9" step="0.5" x-model.number="minRating" @change="applyFilters()">
+      </div>
+      <button class="reset" x-show="hasFilters" x-cloak @click="resetFilters()">Reset filter</button>
+    </div>
+
+    <div class="active-tags" x-show="hasFilters" x-cloak>
+      <template x-for="id in selGenres" :key="id">
+        <span class="tag"><span x-text="genreName(id)"></span><button @click="toggleGenre(id)" aria-label="Hapus">✕</button></span>
+      </template>
+      <span class="tag" x-show="yearSel" x-cloak>Tahun <span x-text="yearSel"></span><button @click="yearSel=''; applyFilters()">✕</button></span>
+      <span class="tag" x-show="origLang" x-cloak>Bahasa: <span x-text="origLang.toUpperCase()"></span><button @click="origLang=''; applyFilters()">✕</button></span>
+      <span class="tag" x-show="minRating>0" x-cloak>★ ≥ <span x-text="minRating"></span><button @click="minRating=0; applyFilters()">✕</button></span>
+    </div>
+  </section>
+
+  <!-- ===== GRID ===== -->
+  <section class="grid" aria-live="polite">
+    <template x-for="n in (loading && !visibleMovies.length ? 12 : 0)" :key="'sk'+n"><div class="skel"></div></template>
+
+    <template x-for="m in visibleMovies" :key="m.id">
+      <article class="card" @click="openMovie(m.id)" tabindex="0" @keydown.enter="openMovie(m.id)"
+               x-transition:enter="fade-enter" x-transition:enter-start="fade-start" x-transition:enter-end="fade-end">
+        <div class="poster">
+          <template x-if="m.poster_path"><img :src="poster(m.poster_path)" :alt="'Poster ' + m.title" loading="lazy"></template>
+          <template x-if="!m.poster_path"><div class="noimg" x-text="m.title"></div></template>
+          <span class="rate"><span class="star">★</span><span x-text="fmtRate(m.vote_average)"></span></span>
+          <button class="fav" :class="{on:isFav(m.id)}" @click.stop="toggleFav(m)" :aria-label="isFav(m.id) ? 'Hapus dari watchlist' : 'Tambah ke watchlist'">
+            <svg viewBox="0 0 24 24"><path d="M12 21s-7.500-4.600-9.600-9.200C.9 8.400 3 4.500 6.800 4.500c2 0 3.700 1.100 5.200 3 1.500-1.900 3.200-3 5.200-3 3.800 0 5.900 3.900 4.400 7.300C19.500 16.400 12 21 12 21z"/></svg>
+          </button>
+          <div class="play-ov"><span @click.stop="openMovie(m.id, true)"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg> Trailer</span></div>
+        </div>
+        <div class="info">
+          <h3 x-text="m.title"></h3>
+          <small><span x-text="year(m.release_date)"></span> · <span x-text="genreNames(m.genre_ids).slice(0,2).join(', ') || '—'"></span></small>
+        </div>
+      </article>
+    </template>
+
+    <div class="empty" x-show="!loading && !visibleMovies.length" x-cloak>
+      <div style="font-size:54px">🎞️</div>
+      <h3 x-text="onlyFavs ? 'Watchlist masih kosong' : 'Film tidak ditemukan'"></h3>
+      <p x-text="onlyFavs ? 'Klik ikon hati pada film untuk menyimpannya di sini.' : 'Coba ubah kata kunci atau longgarkan filter kamu.'"></p>
+    </div>
+  </section>
+
+  <div class="more" x-show="canLoadMore" x-cloak>
+    <button class="btn" @click="loadMore()" :disabled="loading">
+      <span class="spin" x-show="loading"></span>
+      <span x-text="loading ? 'Memuat…' : 'Muat lebih banyak'"></span>
+    </button>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span x-text="new Date().getFullYear()"></span> Nobaarr — Nonton Bareng, Temukan Film.</span>
+    <span>Data film oleh <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>. Produk ini memakai API TMDB tetapi tidak didukung atau disertifikasi oleh TMDB.</span>
+  </div>
+</footer>
+
+<!-- ===== MOVIE MODAL ===== -->
+<div class="overlay" x-show="modal.open" x-cloak @click.self="closeModal()"
+     x-transition:enter="fade-enter" x-transition:enter-start="fade-start" x-transition:enter-end="fade-end">
+  <div class="modal" role="dialog" aria-modal="true" :aria-label="modal.data ? modal.data.title : 'Detail film'">
+    <button class="close" @click="closeModal()" aria-label="Tutup"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+
+    <div class="m-loading" x-show="modal.loading"><span class="spin"></span></div>
+
+    <template x-if="modal.data && !modal.loading">
+      <div>
+        <!-- Trailer stage -->
+        <div class="stage">
+          <template x-if="modal.playing && activeVideo">
+            <iframe :src="embedUrl(activeVideo.key)" title="Trailer"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                    allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          </template>
+          <template x-if="!modal.playing">
+            <div>
+              <img class="cover" :src="backdrop(modal.data.backdrop_path || modal.data.poster_path, 'w1280')" alt="">
+              <div class="cover-fade"></div>
+              <template x-if="activeVideo">
+                <button class="big-play" @click="modal.playing = true" aria-label="Putar trailer"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></button>
+              </template>
+              <template x-if="!activeVideo">
+                <div class="no-trailer">Trailer belum tersedia untuk film ini 😢</div>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <div class="vids" x-show="videos.length > 1">
+          <template x-for="v in videos" :key="v.key">
+            <button :class="{on: activeVideo && activeVideo.key===v.key}" @click="modal.videoKey=v.key; modal.playing=true" x-text="v.label"></button>
+          </template>
+        </div>
+
+        <div class="m-body">
+          <div class="m-poster">
+            <template x-if="modal.data.poster_path"><img :src="poster(modal.data.poster_path)" :alt="'Poster ' + modal.data.title"></template>
+          </div>
+          <div class="m-main">
+            <h2 x-text="modal.data.title"></h2>
+            <div class="tagline" x-show="modal.data.tagline" x-text="modal.data.tagline"></div>
+            <div class="meta">
+              <span><span class="star">★</span> <b x-text="fmtRate(modal.data.vote_average)"></b> <span style="color:var(--muted);font-weight:500">(<span x-text="(modal.data.vote_count||0).toLocaleString('id-ID')"></span> suara)</span></span>
+              <span class="sep"></span><span x-text="year(modal.data.release_date)"></span>
+              <span class="sep" x-show="modal.data.runtime"></span><span x-show="modal.data.runtime" x-text="fmtRuntime(modal.data.runtime)"></span>
+            </div>
+            <div class="gtags"><template x-for="g in modal.data.genres" :key="g.id"><span x-text="g.name"></span></template></div>
+            <div class="actions">
+              <button class="btn pri" x-show="activeVideo" @click="modal.playing=true"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg> Putar Trailer</button>
+              <button class="btn sec" @click="toggleFav(modal.data)">
+                <svg viewBox="0 0 24 24" :style="isFav(modal.data.id) ? 'fill:var(--accent);stroke:var(--accent)' : ''"><path d="M12 21s-7.500-4.600-9.600-9.200C.9 8.400 3 4.500 6.800 4.500c2 0 3.700 1.100 5.200 3 1.500-1.900 3.200-3 5.200-3 3.800 0 5.900 3.900 4.400 7.300C19.500 16.400 12 21 12 21z"/></svg>
+                <span x-text="isFav(modal.data.id) ? 'Hapus dari Watchlist' : 'Tambah ke Watchlist'"></span>
+              </button>
+              <button class="btn sec" @click="share(modal.data)">Bagikan</button>
+            </div>
+            <h4>Sinopsis</h4>
+            <p x-text="modal.data.overview || 'Sinopsis belum tersedia dalam Bahasa Indonesia.'"></p>
+
+            <div class="facts">
+              <div class="fact"><small>Status</small><b x-text="modal.data.status || '—'"></b></div>
+              <div class="fact"><small>Rilis</small><b x-text="fmtDate(modal.data.release_date)"></b></div>
+              <div class="fact"><small>Sutradara</small><b x-text="director || '—'"></b></div>
+              <div class="fact"><small>Anggaran</small><b x-text="money(modal.data.budget)"></b></div>
+              <div class="fact"><small>Pendapatan</small><b x-text="money(modal.data.revenue)"></b></div>
+            </div>
+
+            <template x-if="cast.length">
+              <div>
+                <h4>Pemeran</h4>
+                <div class="cast" style="margin-top:10px">
+                  <template x-for="p in cast" :key="p.id">
+                    <div class="person">
+                      <div class="av"><template x-if="p.profile_path"><img :src="profile(p.profile_path)" :alt="p.name" loading="lazy"></template></div>
+                      <b x-text="p.name"></b><span x-text="p.character"></span>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+
+            <template x-if="similar.length">
+              <div>
+                <h4>Film serupa</h4>
+                <div class="similar" style="margin-top:10px">
+                  <template x-for="s in similar" :key="s.id">
+                    <div class="sim" @click="openMovie(s.id)">
+                      <template x-if="s.poster_path"><img :src="poster(s.poster_path)" :alt="s.title" loading="lazy"></template>
+                      <template x-if="!s.poster_path"><div class="ph"></div></template>
+                      <small x-text="s.title"></small>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </template>
+  </div>
+</div>
+
+<!-- ===== WATCHLIST DRAWER ===== -->
+<div class="drawer-ov" x-show="drawer" x-cloak @click="drawer=false" x-transition.opacity></div>
+<aside class="drawer" x-show="drawer" x-cloak
+       x-transition:enter="fade-enter" x-transition:enter-start="fade-start" x-transition:enter-end="fade-end">
+  <header>
+    <h3>Watchlist <span style="color:var(--muted);font-size:18px" x-text="'(' + favs.length + ')'"></span></h3>
+    <button class="icon-btn" @click="drawer=false" aria-label="Tutup"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </header>
+  <div class="list">
+    <template x-if="!favs.length"><p style="color:var(--muted);text-align:center;padding:40px 10px">Belum ada film. Klik ikon ♡ pada poster untuk menyimpan.</p></template>
+    <template x-for="f in favs" :key="f.id">
+      <div class="row" @click="drawer=false; openMovie(f.id)">
+        <template x-if="f.poster_path"><img :src="poster(f.poster_path)" :alt="f.title"></template>
+        <template x-if="!f.poster_path"><div class="ph"></div></template>
+        <div><b x-text="f.title"></b><small><span x-text="year(f.release_date)"></span> · ★ <span x-text="fmtRate(f.vote_average)"></span></small></div>
+        <button class="rm" @click.stop="toggleFav(f)" aria-label="Hapus">✕</button>
+      </div>
+    </template>
+  </div>
+</aside>
+
+<!-- ===== API KEY DIALOG ===== -->
+<div class="overlay" x-show="keyDialog" x-cloak @click.self="apiKey && (keyDialog=false)" style="z-index:150">
+  <form class="dialog" @submit.prevent="saveKey()">
+    <h3>API key TMDB</h3>
+    <p>Nobaarr mengambil data film dari TMDB. Masukkan API key (v3) kamu. Disimpan hanya di browser ini.</p>
+    <input type="text" x-model.trim="keyInput" placeholder="Tempel API key di sini" autocomplete="off" spellcheck="false">
+    <div class="row2">
+      <button type="button" class="btn sec" x-show="apiKey" @click="keyDialog=false">Batal</button>
+      <button type="submit" class="btn pri" :disabled="!keyInput">Simpan</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" x-show="toast" x-cloak x-text="toast" x-transition.opacity></div>
+
+<script>
+/* ===========================================================
+   NOBAARR — Alpine.js + TMDB
+   Ganti DEFAULT_API_KEY di bawah ini, atau isi lewat ikon ⚙️.
+   =========================================================== */
+const DEFAULT_API_KEY = 'f0725bb49c1b5a1973636735b3102b9d';
+
+function nobaarr () {
+  const API  = 'https://api.themoviedb.org/3';
+  const IMG  = 'https://image.tmdb.org/t/p';
+  const EMOJI = {28:'💥',12:'🧭',16:'🎨',35:'😂',80:'🕵️',99:'🎥',18:'🎭',10751:'👨‍👩‍👧',14:'🧙',36:'🏛️',27:'👻',10402:'🎵',9648:'🔍',10749:'💘',878:'🚀',10770:'📺',53:'😰',10752:'🪖',37:'🤠'};
+  const LS = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch(e) { return null; } };
+  const ymd = d => d.toISOString().slice(0,10);
+  const addDays = n => { const d = new Date(); d.setDate(d.getDate()+n); return ymd(d); };
+
+  return {
+    /* ---------- state ---------- */
+    apiKey: '', keyInput: '', keyDialog: false,
+    tabs: [
+      {id:'trending',  label:'Trending'},
+      {id:'popular',   label:'Populer'},
+      {id:'top_rated', label:'Rating Tertinggi'},
+      {id:'now',       label:'Sedang Tayang'},
+      {id:'upcoming',  label:'Segera Tayang'},
+      {id:'favs',      label:'Watchlist'}
+    ],
+    tab: 'trending',
+    genres: [], selGenres: [],
+    sort: 'popularity.desc', yearSel: '', origLang: '', minRating: 0,
+    years: Array.from({length: new Date().getFullYear() + 1 - 1969}, (_, i) => new Date().getFullYear() + 1 - i),
+    query: '',
+    movies: [], page: 1, totalPages: 1, loading: false, reqId: 0,
+    hero: [], heroIdx: 0, heroTimer: null,
+    modal: { open:false, loading:false, data:null, playing:false, videoKey:null },
+    drawer: false, favs: [], toast: '', toastT: null,
+
+    /* ---------- lifecycle ---------- */
+    async init () {
+      this.favs = LS('nobaarr:favs') || [];
+      this.apiKey = LS('nobaarr:key') || DEFAULT_API_KEY;
+      if (!this.apiKey) { this.keyDialog = true; return; }
+      await this.boot();
+      const id = new URLSearchParams(location.search).get('film');
+      if (id) this.openMovie(+id);
+    },
+    async boot () {
+      await this.loadGenres();
+      this.loadHero();
+      this.applyFilters();
+    },
+    saveKey () {
+      this.apiKey = this.keyInput.trim();
+      LS('nobaarr:key', this.apiKey);
+      this.keyDialog = false;
+      this.keyInput = '';
+      this.boot();
+      this.flash('API key disimpan ✔');
+    },
+
+    /* ---------- API ---------- */
+    async api (path, params = {}) {
+      const u = new URL(API + path);
+      u.searchParams.set('api_key', this.apiKey);
+      u.searchParams.set('language', 'id-ID');
+      Object.entries(params).forEach(([k, v]) => { if (v !== '' && v != null) u.searchParams.set(k, v); });
+      const r = await fetch(u);
+      if (r.status === 401) { this.keyDialog = true; throw new Error('API key tidak valid'); }
+      if (!r.ok) throw new Error('Gagal memuat data (' + r.status + ')');
+      return r.json();
+    },
+    async loadGenres () {
+      try { this.genres = (await this.api('/genre/movie/list')).genres || []; }
+      catch (e) { this.flash(e.message); }
+    },
+    async loadHero () {
+      try {
+        const d = await this.api('/trending/movie/week');
+        this.hero = d.results.filter(m => m.backdrop_path).slice(0, 5);
+        this.startHero();
+      } catch (e) { this.flash(e.message); }
+    },
+    startHero () {
+      clearInterval(this.heroTimer);
+      this.heroTimer = setInterval(() => { if (this.hero.length) this.heroIdx = (this.heroIdx + 1) % this.hero.length; }, 7000);
+    },
+
+    /* ---------- list loading ---------- */
+    get hasFilters () { return this.selGenres.length || this.yearSel || this.origLang || this.minRating > 0 || this.sort !== 'popularity.desc'; },
+    get onlyFavs () { return this.tab === 'favs' && !this.query; },
+    get canLoadMore () { return !this.onlyFavs && this.page < this.totalPages && this.movies.length > 0; },
+
+    get visibleMovies () {
+      if (this.onlyFavs) {
+        return this.favs.filter(f => !this.selGenres.length || (f.genre_ids || (f.genres||[]).map(g => g.id) || []).some(id => this.selGenres.includes(id)))
+                        .filter(f => !this.minRating || f.vote_average >= this.minRating);
+      }
+      let list = this.movies;
+      if (this.query) { // pencarian TMDB tidak punya filter bawaan → filter di sisi klien
+        if (this.selGenres.length) list = list.filter(m => (m.genre_ids||[]).some(id => this.selGenres.includes(id)));
+        if (this.minRating)        list = list.filter(m => m.vote_average >= this.minRating);
+        if (this.yearSel)          list = list.filter(m => (m.release_date||'').startsWith(this.yearSel));
+        if (this.origLang)         list = list.filter(m => m.original_language === this.origLang);
+      }
+      return list;
+    },
+    get heading () {
+      if (this.query) return 'Hasil untuk “' + this.query + '”';
+      return ({trending:'Lagi Trending', popular:'Film Populer', top_rated:'Rating Tertinggi', now:'Sedang Tayang', upcoming:'Segera Tayang', favs:'Watchlist Kamu'})[this.tab];
+    },
+    get subheading () {
+      if (this.onlyFavs) return this.favs.length + ' film tersimpan di browser ini';
+      return this.loading && !this.movies.length ? 'Memuat film…' : this.visibleMovies.length + ' film ditampilkan' + (this.page < this.totalPages ? ' · masih ada lagi' : '');
+    },
+
+    setTab (id) { this.tab = id; this.query = ''; this.applyFilters(); window.scrollTo({top: document.querySelector('.section-head').offsetTop - 100, behavior:'smooth'}); },
+    goHome () { this.resetFilters(); this.tab = 'trending'; this.query = ''; this.applyFilters(); window.scrollTo({top:0, behavior:'smooth'}); },
+    onSearch () { this.applyFilters(); },
+    applyFilters () { this.page = 1; this.movies = []; this.fetchMovies(); },
+    loadMore () { this.page++; this.fetchMovies(true); },
+
+    async fetchMovies (append = false) {
+      if (this.onlyFavs) { this.totalPages = 1; return; }
+      const id = ++this.reqId;
+      this.loading = true;
+      try {
+        let d;
+        if (this.query) {
+          d = await this.api('/search/movie', { query: this.query, page: this.page, include_adult: 'false', region: 'ID' });
+        } else {
+          const p = { page: this.page, include_adult: 'false', sort_by: this.sort, 'vote_count.gte': 30 };
+          if (this.selGenres.length) p.with_genres = this.selGenres.join('|');
+          if (this.yearSel)  p.primary_release_year = this.yearSel;
+          if (this.origLang) p.with_original_language = this.origLang;
+          if (this.minRating) { p['vote_average.gte'] = this.minRating; p['vote_count.gte'] = 100; }
+
+          const sortIsDefault = this.sort === 'popularity.desc';
+          if (this.tab === 'top_rated') {
+            if (sortIsDefault) p.sort_by = 'vote_average.desc';
+            p['vote_count.gte'] = Math.max(p['vote_count.gte'], 300);
+          } else if (this.tab === 'now') {
+            p['primary_release_date.gte'] = addDays(-60); p['primary_release_date.lte'] = addDays(0);
+            p.region = 'ID'; delete p.primary_release_year;
+          } else if (this.tab === 'upcoming') {
+            p['primary_release_date.gte'] = addDays(1); p['primary_release_date.lte'] = addDays(240);
+            p['vote_count.gte'] = 0; delete p.primary_release_year;
+          }
+
+          const plainTrending = this.tab === 'trending' && !this.hasFilters;
+          d = plainTrending ? await this.api('/trending/movie/week', { page: this.page })
+                            : await this.api('/discover/movie', p);
+        }
+        if (id !== this.reqId) return; // permintaan basi
+        const seen = new Set(append ? this.movies.map(m => m.id) : []);
+        const fresh = d.results.filter(m => !seen.has(m.id));
+        this.movies = append ? this.movies.concat(fresh) : fresh;
+        this.totalPages = Math.min(d.total_pages || 1, 500);
+      } catch (e) { if (id === this.reqId) this.flash(e.message); }
+      finally { if (id === this.reqId) this.loading = false; }
+    },
+
+    /* ---------- genre / filter ---------- */
+    toggleGenre (id) {
+      this.selGenres = this.selGenres.includes(id) ? this.selGenres.filter(g => g !== id) : [...this.selGenres, id];
+      this.applyFilters();
+    },
+    clearGenres () { this.selGenres = []; this.applyFilters(); },
+    resetFilters () { this.selGenres = []; this.sort = 'popularity.desc'; this.yearSel = ''; this.origLang = ''; this.minRating = 0; this.applyFilters(); },
+    genreName (id) { return (this.genres.find(g => g.id === id) || {}).name || ''; },
+    genreNames (ids = []) { return ids.map(i => this.genreName(i)).filter(Boolean); },
+    genreEmoji (id) { return EMOJI[id] || '🎬'; },
+
+    /* ---------- detail & trailer ---------- */
+    async openMovie (id, autoplay = false) {
+      this.modal = { open:true, loading:true, data:null, playing:false, videoKey:null };
+      try {
+        const d = await this.api('/movie/' + id, { append_to_response: 'videos,credits,similar', include_video_language: 'id,en,null' });
+        this.modal.data = d;
+        const vs = this.pickVideos(d.videos?.results || []);
+        this.modal.videoKey = vs[0]?.key || null;
+        this.modal.playing = autoplay && !!vs.length;
+        if (autoplay && !vs.length) this.flash('Trailer belum tersedia untuk film ini');
+        history.replaceState(null, '', '?film=' + id);
+      } catch (e) { this.flash(e.message); this.modal.open = false; }
+      finally { this.modal.loading = false; }
+      const el = document.querySelector('.overlay'); if (el) el.scrollTop = 0;
+    },
+    closeModal () { this.modal.open = false; this.modal.playing = false; history.replaceState(null, '', location.pathname); },
+    closeAll () { if (this.modal.open) return this.closeModal(); if (this.keyDialog && this.apiKey) return this.keyDialog = false; this.drawer = false; },
+
+    pickVideos (list) {
+      const rank = { Trailer: 0, Teaser: 1, Clip: 2, Featurette: 3, 'Behind the Scenes': 4 };
+      const yt = list.filter(v => v.site === 'YouTube' && v.key);
+      const labelOf = v => ({Trailer:'Trailer', Teaser:'Teaser', Clip:'Klip', Featurette:'Featurette','Behind the Scenes':'Behind the Scenes'})[v.type] || v.type;
+      yt.sort((a, b) => (rank[a.type] ?? 9) - (rank[b.type] ?? 9) || (b.official - a.official) || (a.iso_639_1 === 'id' ? -1 : 0) - (b.iso_639_1 === 'id' ? -1 : 0) || new Date(b.published_at) - new Date(a.published_at));
+      return yt.slice(0, 6).map((v, i) => ({ ...v, label: labelOf(v) + (v.iso_639_1 === 'id' ? ' (ID)' : '') + (yt.filter(x => x.type === v.type).length > 1 ? ' #' + (yt.filter(x => x.type === v.type).indexOf(v) + 1) : '') }));
+    },
+    get videos () { return this.modal.data ? this.pickVideos(this.modal.data.videos?.results || []) : []; },
+    get activeVideo () { return this.videos.find(v => v.key === this.modal.videoKey) || this.videos[0] || null; },
+    embedUrl (key) { return 'https://www.youtube-nocookie.com/embed/' + key + '?autoplay=1&rel=0&modestbranding=1&playsinline=1'; },
+    get cast () { return (this.modal.data?.credits?.cast || []).slice(0, 12); },
+    get director () { return (this.modal.data?.credits?.crew || []).filter(c => c.job === 'Director').map(c => c.name).join(', '); },
+    get similar () { return (this.modal.data?.similar?.results || []).slice(0, 10); },
+
+    /* ---------- watchlist ---------- */
+    isFav (id) { return this.favs.some(f => f.id === id); },
+    toggleFav (m) {
+      if (this.isFav(m.id)) { this.favs = this.favs.filter(f => f.id !== m.id); this.flash('Dihapus dari watchlist'); }
+      else {
+        this.favs = [{ id:m.id, title:m.title, poster_path:m.poster_path, release_date:m.release_date, vote_average:m.vote_average,
+                       genre_ids: m.genre_ids || (m.genres||[]).map(g => g.id) }, ...this.favs];
+        this.flash('Ditambahkan ke watchlist ♥');
+      }
+      LS('nobaarr:favs', this.favs);
+    },
+    async share (m) {
+      const url = location.origin + location.pathname + '?film=' + m.id;
+      try {
+        if (navigator.share) await navigator.share({ title: m.title + ' — Nobaarr', text: 'Yuk nobar ' + m.title + '!', url });
+        else { await navigator.clipboard.writeText(url); this.flash('Link disalin 🔗'); }
+      } catch (e) {}
+    },
+
+    /* ---------- helpers ---------- */
+    poster: p => p ? IMG + '/w500' + p : '',
+    backdrop: (p, s = 'w1280') => p ? IMG + '/' + s + p : '',
+    profile: p => p ? IMG + '/w185' + p : '',
+    year: d => d ? d.slice(0, 4) : '—',
+    fmtRate: v => v ? v.toFixed(1) : 'NR',
+    fmtRuntime: m => m ? Math.floor(m / 60) + 'j ' + (m % 60) + 'm' : '',
+    fmtDate: d => d ? new Date(d).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : '—',
+    money: n => n ? '$' + (n >= 1e9 ? (n/1e9).toFixed(2) + ' M' : n >= 1e6 ? (n/1e6).toFixed(1) + ' jt' : n.toLocaleString('en-US')) : '—',
+    flash (msg) { this.toast = msg; clearTimeout(this.toastT); this.toastT = setTimeout(() => this.toast = '', 2800); }
+  };
+}
+</script>
+</body>
+</html>
